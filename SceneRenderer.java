@@ -222,7 +222,7 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 		vkEnumeratePhysicalDevices(instance, physicalDeviceCount, physicalDevicesAvailable);
 		
 		boolean foundSuitablePhysicalDevice = false;
-		
+	
 		for(int i=0;i<physicalDeviceCount[0];++i) {
 			physicalDevicesAvailable.position(i);
 			VkPhysicalDevice current = new VkPhysicalDevice(physicalDevicesAvailable.get(),instance);
@@ -490,30 +490,6 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 		}else {
 			vkGetPhysicalDeviceFeatures(physicalDevice, physicalDeviceFeatures);
 		}
-		if(requestedPhysicalDeviceFeatures.depthClamp()&&!physicalDeviceFeatures.depthClamp()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.samplerAnisotropy() && !physicalDeviceFeatures.samplerAnisotropy()){
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.sampleRateShading() && !physicalDeviceFeatures.sampleRateShading()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.fillModeNonSolid() && !physicalDeviceFeatures.fillModeNonSolid()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.fragmentStoresAndAtomics() && !physicalDeviceFeatures.fragmentStoresAndAtomics()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.vertexPipelineStoresAndAtomics() && !physicalDeviceFeatures.vertexPipelineStoresAndAtomics()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.geometryShader() && !physicalDeviceFeatures.geometryShader()) {
-			return false;
-		}
-		if(requestedPhysicalDeviceFeatures.shaderClipDistance() && !physicalDeviceFeatures.shaderClipDistance()) {
-			return false;
-		}
 		
 		//Check PhysicalDeviceExtensions
 		int[] physicalDeviceExtensionCount = new int[1];
@@ -550,6 +526,8 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 
 		
 		int[] supportedPhysicalDevicePresentModeCount = new int[1];
+		getSupportedPhysicalDevicePresentModes(physicalDevice, supportedPhysicalDevicePresentModeCount);
+		
 		
 		if((supportedPhysicalDeviceFormatCount[0]==0)||(supportedPhysicalDevicePresentModeCount[0]==0)) {
 			return false;
