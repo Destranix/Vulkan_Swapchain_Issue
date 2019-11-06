@@ -1,32 +1,10 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-
 import static org.lwjgl.system.MemoryUtil.NULL;//Nullpointer for Pointers
-import static org.lwjgl.system.MemoryUtil.memAlloc;
 import static org.lwjgl.system.MemoryUtil.memAllocFloat;
 import static org.lwjgl.system.MemoryUtil.memAllocLong;
 import static org.lwjgl.system.MemoryUtil.memAllocPointer;
@@ -53,7 +31,6 @@ import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkExtent3D;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
 import org.lwjgl.vulkan.VkFormatProperties;
-import org.lwjgl.vulkan.VkImageBlit;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
 import org.lwjgl.vulkan.VkImageSubresourceLayers;
@@ -69,11 +46,8 @@ import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures2;
 import org.lwjgl.vulkan.VkPhysicalDeviceMemoryProperties;
-import org.lwjgl.vulkan.VkPhysicalDeviceProperties;//Use Vk11 version?
-import org.lwjgl.vulkan.VkPipelineCacheCreateInfo;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
-import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
 import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
@@ -91,7 +65,7 @@ import static org.lwjgl.vulkan.VK10.*;
 import static org.lwjgl.vulkan.VK11.VK_API_VERSION_1_1;
 import static org.lwjgl.vulkan.VK11.VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
 
-public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThreadObject> {
+public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThreadObject<? extends VulkanApplication<T>>> {
 
 	protected final Charset defaultVkCharset = Charset.defaultCharset();
 	
@@ -134,7 +108,7 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 				boolean currentSupported=false;
 				for(int j=0;j<layerCount[0];++j) {
 					layers.position(j);
-					if(layers.layerNameString().equals(requestedValidationLayers[i])) {//Might cause Problems with not UTF8 Layernames
+					if(layers.layerNameString().equals(requestedValidationLayers[i])) {
 						currentSupported=true;
 						break;
 					}
@@ -186,7 +160,7 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 			boolean currentAvailable=false;
 			for(int j=0;j<extensionCount[0];++j) {
 				extensions.position(j);
-				if(requestedExtensions.getStringUTF8(i).equals(extensions.extensionNameString())) {//Might cause Problems with not UTF8 Extensionnames
+				if(requestedExtensions.getStringUTF8(i).equals(extensions.extensionNameString())) {
 					currentAvailable=true;
 					break;
 				}
@@ -264,7 +238,7 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 			uniqueQueueCount++;
 			presentationQueueCreateInfo = VkDeviceQueueCreateInfo.calloc();
 			presentationQueueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
-			presentationQueueCreateInfo.queueFamilyIndex(queueFamilyIndices[1]);//Must be unique!!!!!Handle case when both queueindices are the same
+			presentationQueueCreateInfo.queueFamilyIndex(queueFamilyIndices[1]);
 			
 			presentationQueuePriorities.put(1.0f);
 		}
@@ -305,12 +279,12 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 			
 			FloatBuffer computeQueuePriority = memAllocFloat(1);
 			computeQueuePriority.put(1.0f);
-			computeQueuePriority.flip();//!!!!DON'T FORGET TO FLIP BUFFER!!!!!!
+			computeQueuePriority.flip();
 			computeQueueCreateInfo.pQueuePriorities(computeQueuePriority);
 			memFree(computeQueuePriority);
 		}
 		
-		graphicsQueuePriorities.flip();//!!!!DON'T FORGET TO FLIP BUFFER!!!!!!
+		graphicsQueuePriorities.flip();
 		graphicsQueueCreateInfo.pQueuePriorities(graphicsQueuePriorities);
 		
 		VkDeviceQueueCreateInfo.Buffer queueCreateInfos = VkDeviceQueueCreateInfo.calloc(uniqueQueueCount);
@@ -318,19 +292,19 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 		//Add all Createinfos
 		queueCreateInfos.put(graphicsQueueCreateInfo);
 		if(uniquePresentationQueue) {
-			presentationQueuePriorities.flip();//!!!!DON'T FORGET TO FLIP BUFFER!!!!!!
+			presentationQueuePriorities.flip();
 			presentationQueueCreateInfo.pQueuePriorities(presentationQueuePriorities);
 			queueCreateInfos.put(presentationQueueCreateInfo);
 		}
 		if(uniqueTransferQueue) {
-			transferQueuePriorities.flip();//!!!!DON'T FORGET TO FLIP BUFFER!!!!!!
+			transferQueuePriorities.flip();
 			transferQueueCreateInfo.pQueuePriorities(transferQueuePriorities);
 			queueCreateInfos.put(transferQueueCreateInfo);
 		}
 		if(uniqueComputeQueue) {
 			queueCreateInfos.put(computeQueueCreateInfo);
 		}
-		queueCreateInfos.flip();//!!!!DON'T FORGET TO FLIP BUFFER!!!!!!
+		queueCreateInfos.flip();
 		
 		VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.calloc();
 		deviceCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
@@ -534,7 +508,7 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 		memoryAllocateInfo.memoryTypeIndex(findMemoryType(memoryRequirements.memoryTypeBits(), 
 				properties));
 		
-		err = vkAllocateMemory(device, memoryAllocateInfo, null, bufferMemory);//Don't do it per Buffer...See VulkanMemoryAllocator..Aliasing
+		err = vkAllocateMemory(device, memoryAllocateInfo, null, bufferMemory);
 		
 		if (err != VK_SUCCESS) {
             throw new AssertionError("Failed to allocate Buffer memory: " + err);
@@ -564,11 +538,11 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 		imageCreateInfo.tiling(tiling);
 		imageCreateInfo.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED);
 		imageCreateInfo.usage(usage);
-		imageCreateInfo.sharingMode(sharingMode);//TODO:Only used in one queueFamily. Create different variables for every usage and determine sharingMode at queueFamilySelection.
+		imageCreateInfo.sharingMode(sharingMode);
 		imageCreateInfo.samples(numSamples);
 		imageCreateInfo.flags(0);
 		
-		int err = vkCreateImage(device, imageCreateInfo, null, image);//Textureformat might not be supported!!!
+		int err = vkCreateImage(device, imageCreateInfo, null, image);
 		
 		if (err != VK_SUCCESS) {
             throw new AssertionError("Failed to create Image: " + err);
@@ -583,7 +557,7 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 		memoryAllocateInfo.memoryTypeIndex(findMemoryType(memoryRequirements.memoryTypeBits(), 
 				properties));
 		
-		err = vkAllocateMemory(device, memoryAllocateInfo, null, imageMemory);//Don't do it per Image...See VulkanMemoryAllocator..Aliasing
+		err = vkAllocateMemory(device, memoryAllocateInfo, null, imageMemory);
 		
 		if (err != VK_SUCCESS) {
             throw new AssertionError("Failed to allocate image memory: " + err);
@@ -1007,13 +981,10 @@ public abstract class VulkanApplication<T extends VulkanApplicationPerFrameThrea
 	
 	//Helper
 	protected static ByteBuffer String2ByteBuffer(String string, Charset charset) {
-		//return ByteBuffer.wrap((string+"\0").getBytes(charset));
-		//User memUTF8-Method
 		return memUTF8(string);
 	}
 	
 	protected static String ByteBuffer2String(ByteBuffer buffer, Charset charset) {
-		//return new String(buffer.array(),charset);
 		return memUTF8(buffer);
 	}
 	

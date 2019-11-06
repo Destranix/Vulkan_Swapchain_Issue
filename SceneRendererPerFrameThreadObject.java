@@ -1,70 +1,30 @@
-import static org.lwjgl.system.MemoryUtil.memAddress;
-import static org.lwjgl.system.MemoryUtil.memAlloc;
+
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 import static org.lwjgl.system.MemoryUtil.memAllocLong;
 import static org.lwjgl.system.MemoryUtil.memAllocPointer;
-import static org.lwjgl.system.MemoryUtil.memCopy;
 import static org.lwjgl.system.MemoryUtil.memFree;
 import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
-import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME;
-import static org.lwjgl.vulkan.EXTConditionalRendering.VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT;
-import static org.lwjgl.vulkan.KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR;
 import static org.lwjgl.vulkan.KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 import static org.lwjgl.vulkan.KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-import static org.lwjgl.vulkan.KHRSwapchain.VK_SUBOPTIMAL_KHR;
-import static org.lwjgl.vulkan.KHRSwapchain.vkQueuePresentKHR;
 import static org.lwjgl.vulkan.VK10.*;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT;
-import static org.lwjgl.vulkan.VK11.VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
-import static org.lwjgl.vulkan.EXTConditionalRendering.vkCmdBeginConditionalRenderingEXT;
-import static org.lwjgl.vulkan.EXTConditionalRendering.vkCmdEndConditionalRenderingEXT;
-import static org.lwjgl.vulkan.EXTShaderViewportIndexLayer.VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME;
-import static org.lwjgl.vulkan.EXTTransformFeedback.vkCmdBindTransformFeedbackBuffersEXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.vkCmdBeginTransformFeedbackEXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.vkCmdEndTransformFeedbackEXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.vkCmdDrawIndirectByteCountEXT;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.vulkan.VkBufferMemoryBarrier;
-import org.lwjgl.vulkan.VkClearAttachment;
-import org.lwjgl.vulkan.VkClearColorValue;
-import org.lwjgl.vulkan.VkClearDepthStencilValue;
-import org.lwjgl.vulkan.VkClearRect;
-import org.lwjgl.vulkan.VkClearValue;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
-import org.lwjgl.vulkan.VkConditionalRenderingBeginInfoEXT;
-import org.lwjgl.vulkan.VkDescriptorBufferInfo;
-import org.lwjgl.vulkan.VkDescriptorImageInfo;
-import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo;
-import org.lwjgl.vulkan.VkExtent2D;
+
 import org.lwjgl.vulkan.VkExtent3D;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
-import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkImageCopy;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
-import org.lwjgl.vulkan.VkImageResolve;
 import org.lwjgl.vulkan.VkImageSubresourceLayers;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
-import org.lwjgl.vulkan.VkMemoryBarrier;
-import org.lwjgl.vulkan.VkOffset2D;
 import org.lwjgl.vulkan.VkOffset3D;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
-import org.lwjgl.vulkan.VkQueryPoolCreateInfo;
-import org.lwjgl.vulkan.VkRect2D;
-import org.lwjgl.vulkan.VkRenderPassBeginInfo;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;
-import org.lwjgl.vulkan.VkViewport;
-import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class SceneRendererPerFrameThreadObject extends VulkanApplicationPerFrameThreadObject<SceneRenderer>{
 
@@ -110,7 +70,6 @@ public class SceneRendererPerFrameThreadObject extends VulkanApplicationPerFrame
 	private void createImageViews() {
 		long currentView = VK_NULL_HANDLE;
 		
-		//currentView = parentProcess.createImageView(swapChainImage, parentProcess.swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0, 1, VK_IMAGE_VIEW_TYPE_2D);
 		currentView = VK_NULL_HANDLE;
 		swapChainImageView.put(0, currentView);
 		
@@ -138,7 +97,7 @@ public class SceneRendererPerFrameThreadObject extends VulkanApplicationPerFrame
 	}
 	
 	@Override
-	protected void recordCommandBuffer() {//TODO: Use secondary command buffers.
+	protected void recordCommandBuffer() {
 		VkCommandBuffer commandBuffer = commandBuffers[currentCommandBufferIndex];
 		
 		VkCommandBufferBeginInfo commandBufferBeginInfo = VkCommandBufferBeginInfo.calloc();
@@ -360,7 +319,6 @@ public class SceneRendererPerFrameThreadObject extends VulkanApplicationPerFrame
 		LongBuffer waitSemaphores = (LongBuffer) memAllocLong(1).put(imageAvailableSemaphore.longValue()).flip();
 		submitInfos.pWaitSemaphores(waitSemaphores);
 		IntBuffer waitStages = memAllocInt(1);
-		//waitStages.put(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT).flip();
 		waitStages.put(VK_PIPELINE_STAGE_TRANSFER_BIT).flip();
 		submitInfos.pWaitDstStageMask(waitStages);//Wait with writing of output image till it's available
 		PointerBuffer commandBufferPointer = memAllocPointer(1).put(commandBuffers[currentCommandBufferIndex].address()).flip();
@@ -372,7 +330,7 @@ public class SceneRendererPerFrameThreadObject extends VulkanApplicationPerFrame
 
 		int err = -1;
 		synchronized(parentProcess.graphicsQueue) {
-			err = vkQueueSubmit(parentProcess.graphicsQueue, submitInfos, inFlightFences.get(currentCommandBufferIndex));//TODO: Only one call when rendering Screen for all Frames
+			err = vkQueueSubmit(parentProcess.graphicsQueue, submitInfos, inFlightFences.get(currentCommandBufferIndex));
 		}
 		if (err != VK_SUCCESS) {
             throw new RuntimeException("Failed to submit draw CommandBuffer: " + err);

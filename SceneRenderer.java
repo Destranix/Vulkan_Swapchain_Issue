@@ -1,39 +1,15 @@
 import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_Q;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_PERIOD;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_COMMA;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F6;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F7;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
 import static org.lwjgl.glfw.GLFW.GLFW_NO_API;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_STICKY_KEYS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RED_BITS;
-import static org.lwjgl.glfw.GLFW.GLFW_GREEN_BITS;
-import static org.lwjgl.glfw.GLFW.GLFW_BLUE_BITS;
-import static org.lwjgl.glfw.GLFW.GLFW_REFRESH_RATE;
-import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F8;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F1;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
-import static org.lwjgl.glfw.GLFW.glfwGetKey;
-import static org.lwjgl.glfw.GLFW.glfwGetMouseButton;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
@@ -41,28 +17,17 @@ import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwWaitEvents;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
-import static org.lwjgl.glfw.GLFW.glfwGetInputMode;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFWVulkan.glfwCreateWindowSurface;
 import static org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions;
-import static org.lwjgl.stb.STBImage.STBI_rgb_alpha;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.system.MemoryUtil.memAddress;
 import static org.lwjgl.system.MemoryUtil.memAlloc;
-import static org.lwjgl.system.MemoryUtil.memAllocFloat;
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 import static org.lwjgl.system.MemoryUtil.memAllocLong;
 import static org.lwjgl.system.MemoryUtil.memAllocPointer;
-import static org.lwjgl.system.MemoryUtil.memCopy;
 import static org.lwjgl.system.MemoryUtil.memFree;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
 import static org.lwjgl.vulkan.EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT;
 import static org.lwjgl.vulkan.KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 import static org.lwjgl.vulkan.KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -85,128 +50,34 @@ import static org.lwjgl.vulkan.KHRSwapchain.vkCreateSwapchainKHR;
 import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
 import static org.lwjgl.vulkan.KHRSwapchain.vkGetSwapchainImagesKHR;
 import static org.lwjgl.vulkan.KHRSwapchain.vkQueuePresentKHR;
-import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_BLEND_OP_MULTIPLY_EXT;
-import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
-import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT;
-import static org.lwjgl.vulkan.EXTBlendOperationAdvanced.VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME;
-import static org.lwjgl.vulkan.EXTConditionalRendering.VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
-import static org.lwjgl.vulkan.EXTTransformFeedback.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT;
-import static org.lwjgl.vulkan.EXTShaderViewportIndexLayer.VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK11.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 import static org.lwjgl.vulkan.VK11.vkGetPhysicalDeviceFeatures2;
-import static org.lwjgl.vulkan.VK11.VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
-import static org.lwjgl.vulkan.VK11.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-import static org.lwjgl.vulkan.VK11.vkGetPhysicalDeviceProperties2;
 import static org.lwjgl.vulkan.VK10.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWErrorCallbackI;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallbackI;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.vulkan.VKCapabilitiesDevice;
 import org.lwjgl.vulkan.VKCapabilitiesInstance;
 import org.lwjgl.vulkan.VkAllocationCallbacks;
-import org.lwjgl.vulkan.VkAttachmentDescription;
-import org.lwjgl.vulkan.VkAttachmentReference;
-import org.lwjgl.vulkan.VkBufferCopy;
-import org.lwjgl.vulkan.VkBufferMemoryBarrier;
-import org.lwjgl.vulkan.VkClearColorValue;
-import org.lwjgl.vulkan.VkClearDepthStencilValue;
-import org.lwjgl.vulkan.VkClearValue;
-import org.lwjgl.vulkan.VkCommandBuffer;
-import org.lwjgl.vulkan.VkComputePipelineCreateInfo;
-import org.lwjgl.vulkan.VkDescriptorBufferInfo;
-import org.lwjgl.vulkan.VkDescriptorImageInfo;
-import org.lwjgl.vulkan.VkDescriptorPoolCreateInfo;
-import org.lwjgl.vulkan.VkDescriptorPoolSize;
-import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo;
-import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
-import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;
 import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkExtent2D;
-import org.lwjgl.vulkan.VkExtent3D;
-import org.lwjgl.vulkan.VkFenceCreateInfo;
-import org.lwjgl.vulkan.VkFramebufferCreateInfo;
-import org.lwjgl.vulkan.VkGraphicsPipelineCreateInfo;
-import org.lwjgl.vulkan.VkImageCopy;
-import org.lwjgl.vulkan.VkImageMemoryBarrier;
-import org.lwjgl.vulkan.VkImageSubresourceLayers;
-import org.lwjgl.vulkan.VkImageSubresourceRange;
-import org.lwjgl.vulkan.VkMemoryBarrier;
-import org.lwjgl.vulkan.VkOffset2D;
-import org.lwjgl.vulkan.VkOffset3D;
 import org.lwjgl.vulkan.VkPhysicalDevice;
-import org.lwjgl.vulkan.VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures2;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
-import org.lwjgl.vulkan.VkPhysicalDeviceProperties2;
-import org.lwjgl.vulkan.VkPhysicalDeviceTransformFeedbackFeaturesEXT;
-import org.lwjgl.vulkan.VkPhysicalDeviceTransformFeedbackPropertiesEXT;
-import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
-import org.lwjgl.vulkan.VkPipelineColorBlendStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineDepthStencilStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineDynamicStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineInputAssemblyStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
-import org.lwjgl.vulkan.VkPipelineMultisampleStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineRasterizationStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
-import org.lwjgl.vulkan.VkPipelineTessellationStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineVertexInputStateCreateInfo;
-import org.lwjgl.vulkan.VkPipelineViewportStateCreateInfo;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
-import org.lwjgl.vulkan.VkPushConstantRange;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
-import org.lwjgl.vulkan.VkRect2D;
-import org.lwjgl.vulkan.VkRenderPassBeginInfo;
-import org.lwjgl.vulkan.VkRenderPassCreateInfo;
-import org.lwjgl.vulkan.VkSamplerCreateInfo;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
-import org.lwjgl.vulkan.VkSpecializationInfo;
-import org.lwjgl.vulkan.VkSpecializationMapEntry;
-import org.lwjgl.vulkan.VkStencilOpState;
-import org.lwjgl.vulkan.VkSubmitInfo;
-import org.lwjgl.vulkan.VkSubpassDependency;
-import org.lwjgl.vulkan.VkSubpassDescription;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
-import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
-import org.lwjgl.vulkan.VkVertexInputBindingDescription;
-import org.lwjgl.vulkan.VkViewport;
-import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThreadObject>{
 
@@ -227,42 +98,29 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	
 	private static final String[] requestedValidationLayers;
 	private static final String[] requestedPhysicalDeviceExtensions;
-	private static final VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT requestedBlendOperationAdvancedFeatures;
-	private static final VkPhysicalDeviceTransformFeedbackFeaturesEXT requestedTransformFeedbackFeatures;
 	private static final VkPhysicalDeviceFeatures2 requestedPhysicalDeviceFeaturesExtensionChain;
 	static {
 		if(RENDERDOC_ENABLED) {
 			requestedPhysicalDeviceExtensions = new String[] {
 					VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-					//VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME,
-				//	VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME
 			};
 			requestedValidationLayers=new String[] {
 					"VK_LAYER_RENDERDOC_Capture",
-				//	"VK_LAYER_LUNARG_standard_validation"
 			};
-			requestedBlendOperationAdvancedFeatures = null;
-			requestedTransformFeedbackFeatures = null;
 			requestedPhysicalDeviceFeaturesExtensionChain = VkPhysicalDeviceFeatures2.calloc()
 					.sType(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2);
 		}else {
 			requestedPhysicalDeviceExtensions = new String[] {
 					VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-					//VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,
-					//VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME,
-					//VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME
 			};
 			requestedValidationLayers=new String[] {
 					"VK_LAYER_LUNARG_standard_validation"
 			};
-			requestedBlendOperationAdvancedFeatures = null;
-			requestedTransformFeedbackFeatures = null;
 			requestedPhysicalDeviceFeaturesExtensionChain =null;
 		}
 	}
 	private static final String[] requiredPhysicalDeviceExtensions = new String[] {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-			//VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME,
 	};
 	protected static final HashMap<String, Boolean> supportedPhysicalDeviceExtensions = new HashMap<String, Boolean>(requestedPhysicalDeviceExtensions.length);
 	
@@ -352,7 +210,7 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	}
 	
 	@Override
-	protected VkPhysicalDevice pickPhysicalDevice() {//Change to select best GrafikCard(see tutorial)
+	protected VkPhysicalDevice pickPhysicalDevice() {
 		VkPhysicalDevice ret = null;
 		int[] physicalDeviceCount = new int[1];
 		
@@ -410,15 +268,6 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 		swapChainCreateInfo.imageExtent(extent);
 		swapChainCreateInfo.imageArrayLayers(1);//Just one Layer per Image cause it's not VR
 		swapChainCreateInfo.imageUsage(VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-		
-		boolean allQueueFamiliesSame = true;
-		int compareQueueFamily = queueFamilyIndices[0];
-		for(int i=1;i<queueFamilyIndices.length;++i) {
-			if(queueFamilyIndices[i]!=compareQueueFamily) {
-				allQueueFamiliesSame=false;
-				break;
-			}
-		}
 		
 		if(!(queueFamilyIndices[0] == queueFamilyIndices[1])) {
 			swapChainCreateInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
@@ -510,7 +359,7 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	}
 	
 	@Override
-	protected SceneRendererPerFrameThreadObject[] createPerFrameThreadObjects() {//TODO: Make count more independent, so it even makes sense, when only a few images are used. Rendering to the same aímage at the same time doesn't make sense!
+	protected SceneRendererPerFrameThreadObject[] createPerFrameThreadObjects() {
 		SceneRendererPerFrameThreadObject[] perFrameThreadObjects = new SceneRendererPerFrameThreadObject[swapChainImages.limit()];
 		for(int i=0;i<swapChainImages.limit();++i) {
 			perFrameThreadObjects[i] = new SceneRendererPerFrameThreadObject(this, swapChainImages.get(i), colorImages.get(i), i);
@@ -569,7 +418,7 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	
 	private void cleanupSwapChain() {
 		
-		for(int i=0;i<swapChainImages.limit();++i) {//TODO: Dont wait for them to render everything, but interrupt them!
+		for(int i=0;i<swapChainImages.limit();++i) {
 			synchronized(perFrameThreadObjects[i].waitingMonitorObject) {//Wait till all threads are in waiting mode
 				boolean loop;
 				synchronized(perFrameThreadObjects[i]) {
@@ -628,15 +477,6 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	protected boolean isPhysicalDeviceSuitable(VkPhysicalDevice physicalDevice) {
 		VkPhysicalDeviceProperties physicalDeviceProperties = VkPhysicalDeviceProperties.calloc();
 		vkGetPhysicalDeviceProperties(physicalDevice, physicalDeviceProperties);
-		/*
-		VkPhysicalDeviceTransformFeedbackPropertiesEXT tmp = VkPhysicalDeviceTransformFeedbackPropertiesEXT.calloc();
-		tmp.sType(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT);
-		VkPhysicalDeviceProperties2 tmp2 = VkPhysicalDeviceProperties2.calloc();
-		tmp2.sType(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
-		tmp2.pNext(tmp.address());
-		vkGetPhysicalDeviceProperties2(physicalDevice, tmp2);
-		System.out.println(tmp.maxTransformFeedbackBufferSize());
-		*/
 		
 		VKCapabilitiesInstance physicalDeviceCapabilities = physicalDevice.getCapabilities();
 		
@@ -710,7 +550,6 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 
 		
 		int[] supportedPhysicalDevicePresentModeCount = new int[1];
-		int[] supportedPhysicalDevicePresentModes = getSupportedPhysicalDevicePresentModes(physicalDevice, supportedPhysicalDevicePresentModeCount);
 		
 		if((supportedPhysicalDeviceFormatCount[0]==0)||(supportedPhysicalDevicePresentModeCount[0]==0)) {
 			return false;
@@ -774,7 +613,7 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	
 	private VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR.Buffer supportedSwapSurfaceFormats) {
 		if(supportedSwapSurfaceFormats.limit()==1 && supportedSwapSurfaceFormats.get(0).format() == VK_FORMAT_UNDEFINED) {
-			return createSwapSurfaceFormat(preferredSwapSurfaceFormat, preferredSwapSurfaceColorSpace);//FIXME: Unspecificated Behavior
+			return createSwapSurfaceFormat(preferredSwapSurfaceFormat, preferredSwapSurfaceColorSpace);
 		}else {
 			for(int i=0;i<supportedSwapSurfaceFormats.limit();++i) {
 				supportedSwapSurfaceFormats.position(i);
@@ -908,19 +747,8 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 				int err;
 				synchronized(presentationQueue) {
 					synchronized(swapChain) {
-						//synchronized(imageAvailableSemaphore) { Not necessary. Exclusive use
 							err = vkQueuePresentKHR(presentationQueue, job.presentInfo);//Use VK_KHR_shared_presentable_image?
-						//}
 					}
-					/*
-					queryDelta("\tQueue Waittime");
-					err = vkQueueWaitIdle(presentationQueue);//Wait for queue befor freeing image to be acquired
-					queryDelta("\tQueue Waittime");
-					
-					if(err != VK_SUCCESS) {
-						throw new RuntimeException("Failed to wait on present queue: " + err);
-					}
-					*/
 				}
 				if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR || framebufferResized) {
 					framebufferResized = false;
@@ -1063,10 +891,6 @@ public class SceneRenderer extends VulkanApplication<SceneRendererPerFrameThread
 	
 	@Override
 	protected void cleanup() {
-		//TODO: Cleanup scene
-		
-		//Before cleanup save pipeline cache
-		//savePipelineCache();
 		
 		cleanupSwapChain();
 		vkDestroySwapchainKHR(device, swapChain.get(0), null);
